@@ -7,50 +7,59 @@
 
 using namespace std;
 
+class Task {
+	public:
+		string description;
+		int id;
+};
 
-void readTaskList(string fileName) {
-	ofstream file(fileName);
-
-
-}
-
-void writeToTaskList(string fileName) {
-	ofstream file(fileName);
-
-	file << "Hello World";
-
-	file.close();
-}
-
-void addTask(int argc, char* argv[], vector<string>* taskList) {
+void listTaskList(ifstream* inputFile) {
 	string task;
+
+	while (getline (*inputFile, task)) {
+		cout << task << endl;
+	}
+}
+
+void writeTaskToFile(ofstream* file, string task) {
+	*file << task << endl;
+}
+
+Task createTask(int argc, char* argv[]) {
+	Task task; 
+
+	// Create task description
+	string taskDescription;
+
 	for (int i = 2; i < argc; i++) {
-		task += argv[i];
-		task += " ";
+		taskDescription += argv[i];
+		if (i < argc - 1) {
+			taskDescription += " ";
+		}
 	}
 
-	taskList->push_back(task);
+	task.description = taskDescription;
+
+	return task;
 }
 
 void deleteTask(int element, vector<string>* taskList) {
 	taskList->erase(taskList->begin() + element);
 }
 
-void printTaskList(vector<string> taskList) {
-	for (string task : taskList) {
-		cout << task << endl;
-	}
-}
-
 int main(int argc, char* argv[]) {
 
-	writeToTaskList("test.txt");
-
+	string fileName = "list.txt";
 	vector<string> taskList;
+
+	// Create ofstream and ifstream instances
+	ofstream outputFile(fileName, ios::app);
+	ifstream inputFile(fileName);
 
 	// Add a Task
 	if (argc > 1 && strcmp(argv[1], "add") == 0) {
-		addTask(argc, argv, &taskList);
+		Task task = createTask(argc, argv);
+		writeTaskToFile(&outputFile, task.description);
 	}
 
 	// Delete a Task
@@ -60,7 +69,7 @@ int main(int argc, char* argv[]) {
 
 	// Print Task List
 	if (argc > 1 && strcmp(argv[1], "list") == 0) {
-		printTaskList(taskList);
+		listTaskList(&inputFile);
 	} 
 
 	return 0;
