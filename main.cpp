@@ -1,76 +1,108 @@
 #include <iostream>
 #include <string>
-#include <cstring>
 #include <vector>
-#include <cstdlib>
 #include <fstream>
+#include <cstdlib>
 
 using namespace std;
 
 class Task {
-	public:
-		string description;
-		int id;
+public:
+    	string description;
+    	int id;
+    
+    	static int current_id;  // Static variable for unique IDs
+
+    	// Constructor to initialize task with a description
+    	Task(string desc) : description(desc), id(current_id++) {}
 };
 
-void listTaskList(ifstream* inputFile) {
-	string task;
+// Initialize static variable
+int Task::current_id = 0;
 
-	while (getline (*inputFile, task)) {
-		cout << task << endl;
-	}
+vector<Task> taskList; // Store tasks in memory
+
+void loadTasksFromFile(const string& fileName) {
+    	ifstream inputFile(fileName);
+    	string line;
+    	int id;
+    
+	// Clear task list before loading
+    	taskList.clear();
+	// Reset ID counter
+    	Task::current_id = 0; // Reset ID counter
+
+    	while (inputFile >> id) {
+		// Ignore the space after ID
+        	inputFile.ignore();
+		// Read task description
+        	getline(inputFile, line);
+        	taskList.emplace_back(line);
+		// Set correct ID
+        	taskList.back().id = id;
+		// Increment ID
+        	Task::current_id = id + 1;
+    }
+    inputFile.close();
 }
 
-void writeTaskToFile(ofstream* file, string task) {
-	*file << task << endl;
+
+void saveTasksToFile(const string& fileName) {
+	// Overwrite File
+    	ofstream outputFile(fileName, ios::trunc);
+	
+	// Cycle through tasks in list and add them to the file
+	for (const Task& task : taskList) {
+        	outputFile << task.id << " " << task.description << endl;
+    	}
 }
 
-Task createTask(int argc, char* argv[]) {
-	Task task; 
 
-	// Create task description
-	string taskDescription;
+void listTasks() {
+    	for (const Task& task : taskList) {
+        	cout << task.id << ": " << task.description << endl;
+    	}
+}
 
-	for (int i = 2; i < argc; i++) {
+void addTask(int argc, char* argv[]) {
+	// Go through argv to get description
+    	string taskDescription;
+    	for (int i = 2; i < argc; i++) {
 		taskDescription += argv[i];
 		if (i < argc - 1) {
-			taskDescription += " ";
+	    	taskDescription += " ";
 		}
-	}
+    	}
 
-	task.description = taskDescription;
+    	taskList.emplace_back(taskDescription);
 
-	return task;
-}
-
-void deleteTask(int element, vector<string>* taskList) {
-	taskList->erase(taskList->begin() + element);
+	// Save tasks to File
+	saveTasksToFile("list.txt");
 }
 
 int main(int argc, char* argv[]) {
-
 	string fileName = "list.txt";
-	vector<string> taskList;
 
-	// Create ofstream and ifstream instances
-	ofstream outputFile(fileName, ios::app);
-	ifstream inputFile(fileName);
+	// Load existing tasks
+	loadTasksFromFile(fileName);
 
-	// Add a Task
-	if (argc > 1 && strcmp(argv[1], "add") == 0) {
-		Task task = createTask(argc, argv);
-		writeTaskToFile(&outputFile, task.description);
-	}
+	// Grab command from argv
+	if (argc > 1) {
+		string command = argv[1];
 
-	// Delete a Task
-	if (argc > 1 && strcmp(argv[1], "delete") == 0) {
-		deleteTask(atoi(argv[2]), &taskList);
-	}
-
-	// Print Task List
-	if (argc > 1 && strcmp(argv[1], "list") == 0) {
-		listTaskList(&inputFile);
+	if (command == "add") {
+		addTask(argc, argv);
 	} 
+	else if (command == "list") {
+		listTasks();
+	} 
+	else {
+		cout << "Invalid command. Use 'add', 'delete', or 'list'.\n";
+	}
+	} else {
+		cout << "Usage: ./task [add|list]\n";
+	}
 
 	return 0;
 }
+
