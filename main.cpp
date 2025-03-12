@@ -46,7 +46,6 @@ void loadTasksFromFile(const string& fileName) {
     inputFile.close();
 }
 
-
 void saveTasksToFile(const string& fileName) {
 	// Overwrite File
     	ofstream outputFile(fileName, ios::trunc);
@@ -80,6 +79,12 @@ void addTask(int argc, char* argv[]) {
 	saveTasksToFile("list.txt");
 }
 
+void deleteTask(int id) {
+	taskList.erase(taskList.begin() + id);
+
+	saveTasksToFile("list.txt");
+}
+
 int main(int argc, char* argv[]) {
 	string fileName = "list.txt";
 
@@ -92,10 +97,13 @@ int main(int argc, char* argv[]) {
 
 	if (command == "add") {
 		addTask(argc, argv);
-	} 
+	}
+	else if (command == "delete") {
+		deleteTask(atoi(argv[2]));
+	}
 	else if (command == "list") {
 		listTasks();
-	} 
+	}
 	else {
 		cout << "Invalid command. Use 'add', 'delete', or 'list'.\n";
 	}
