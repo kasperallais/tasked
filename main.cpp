@@ -1,15 +1,44 @@
 #include <iostream>
+#include <string>
+#include <cstring>
+#include <vector>
+#include <cstdlib>
+
 using namespace std;
 
-int main() {
-	int input;
-	cout << "1 For Task Tracker, 2 For Habit Tracker: ";
-	cin >> input;
 
-	if (input == 1) {
-		cout << "You Pressed One" << endl;
+void addTask(int argc, char* argv[], vector<string>* taskList) {
+	string task;
+	for (int i = 2; i < argc; i++) {
+		task += argv[i];
+		task += " ";
 	}
-	else if (input == 2) { 
-		cout << "You Pressed Two" << endl;
+
+	taskList->push_back(task);
+}
+
+void deleteTask(int element, vector<string>* taskList) {
+	taskList->erase(taskList->begin() + element);
+}
+
+int main(int argc, char* argv[]) {
+
+	vector<string> taskList;
+
+	// Add Task
+	if (argc > 1 && strcmp(argv[1], "add") == 0) {
+		addTask(argc, argv, &taskList);
 	}
+
+	if (argc > 1 && strcmp(argv[1], "delete") == 0) {
+		deleteTask(atoi(argv[2]), &taskList);
+	}
+
+	for (string task: taskList) {
+		cout << task;
+	}
+
+	deleteTask(0, &taskList);
+
+	return 0;
 }
