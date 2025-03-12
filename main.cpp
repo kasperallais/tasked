@@ -11,7 +11,8 @@ public:
     	string description;
     	int id;
     
-    	static int current_id;  // Static variable for unique IDs
+	// Static variable for unique IDs
+    	static int current_id; 
 
     	// Constructor to initialize task with a description
     	Task(string desc) : description(desc), id(current_id++) {}
@@ -20,7 +21,8 @@ public:
 // Initialize static variable
 int Task::current_id = 0;
 
-vector<Task> taskList; // Store tasks in memory
+// Store tasks in memory
+vector<Task> taskList;
 
 void loadTasksFromFile(const string& fileName) {
     	ifstream inputFile(fileName);
@@ -30,7 +32,7 @@ void loadTasksFromFile(const string& fileName) {
 	// Clear task list before loading
     	taskList.clear();
 	// Reset ID counter
-    	Task::current_id = 0; // Reset ID counter
+    	Task::current_id = 0;
 
     	while (inputFile >> id) {
 		// Ignore the space after ID
@@ -75,11 +77,26 @@ void addTask(int argc, char* argv[]) {
 
     	taskList.emplace_back(taskDescription);
 
-	// Save tasks to File
 	saveTasksToFile("list.txt");
 }
 
-void deleteTask(int id) {
+void editTask(int argc, char* argv[]) {
+	int id = atoi(argv[2]);
+
+	// Go through argv to get description
+    	string taskDescription;
+    	for (int i = 2; i < argc; i++) {
+		taskDescription += argv[i];
+		if (i < argc - 1) {
+	    	taskDescription += " ";
+		}
+    	}
+
+}
+
+void deleteTask(int argc, char* argv[]) {
+	int id = atoi(argv[2]);
+
 	taskList.erase(taskList.begin() + id);
 
 	saveTasksToFile("list.txt");
@@ -95,19 +112,17 @@ int main(int argc, char* argv[]) {
 	if (argc > 1) {
 		string command = argv[1];
 
-	if (command == "add") {
-		addTask(argc, argv);
-	}
-	else if (command == "delete") {
-		deleteTask(atoi(argv[2]));
-	}
-	else if (command == "list") {
-		listTasks();
-	}
+		if (command == "add") {
+			addTask(argc, argv);
+		}
+		else if (command == "delete") {
+			deleteTask(argc, argv);
+		}
+		else if (command == "list") {
+			listTasks();
+		}
+	} 
 	else {
-		cout << "Invalid command. Use 'add', 'delete', or 'list'.\n";
-	}
-	} else {
 		cout << "Usage: ./task [add|list]\n";
 	}
 
